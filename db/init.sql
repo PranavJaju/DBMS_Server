@@ -18,10 +18,13 @@ create table user(
 )
 
 create table donation(
+    id int GENERATED ALWAYS AS IDENTITY UNIQUE
     fk_user int,
+    blood varchar(6),
     donation_date Date,
     quantity NUMERIC(10, 2),
     hospital VARCHAR(1000),
+    is_available BOOLEAN,
     CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
 )
 
@@ -33,13 +36,6 @@ create table receive(
     CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
 )
 
-create table stock(
-    fk_user int,
-    blood varchar(6),
-    quantity NUMERIC(10, 2),
-    is_available BOOLEAN,
-    CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
-)
 
 create table transaction(
     donar_id int,

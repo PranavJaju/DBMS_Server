@@ -4,24 +4,24 @@ const signup = async(req,res)=>{
     try{
         const {first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password} = req.body;
         if(!first_name || !email || !mobile_number || !gender || !dob || !password){
-            res.status(400).json({error:"Fill all the required fields"});
+           return  res.status(400).json({error:"Fill all the required fields"});
         }
         let query = "select * from user where email = $1";
         let result = await client.query(query,[email]);
         if(result.rows[0].length>0){
-            res.status(400).json({error:"Email already registered"});
+           return res.status(400).json({error:"Email already registered"});
         }
          query = "select * from user where mobile_number = $1";
          result = await client.query(query,[mobile_number]);
         if(result.rows[0].length>0){
-            res.status(400).json({error:"Mobile already registered"});
+            return res.status(400).json({error:"Mobile already registered"});
         }
 
         result = await client.query("insert into user(first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password,created_at,updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
         [first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password,Date.now(),Date.now()]);
         
         const token = generateUserToken(result.rows[0].id);
-        res.status(201).json({token:token,user:{...result.rows[0]}});
+        return res.status(201).json({token:token,user:{...result.rows[0]}});
 
     }catch(e){
         res.status(500).json({error:"Internal Server error"});
@@ -76,3 +76,5 @@ const logUserOut = async (req, res) => {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  module.exports = {signin,signup,logUserOut};
