@@ -6,18 +6,18 @@ const signup = async(req,res)=>{
         if(!first_name || !email || !mobile_number || !gender || !dob || !password){
            return  res.status(400).json({error:"Fill all the required fields"});
         }
-        let query = "select * from user where email = $1";
+        let query = "select * from users where email = $1";
         let result = await client.query(query,[email]);
         if(result.rows[0].length>0){
            return res.status(400).json({error:"Email already registered"});
         }
-         query = "select * from user where mobile_number = $1";
+         query = "select * from users where mobile_number = $1";
          result = await client.query(query,[mobile_number]);
         if(result.rows[0].length>0){
             return res.status(400).json({error:"Mobile already registered"});
         }
 
-        result = await client.query("insert into user(first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password,created_at,updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+        result = await client.query("insert into users(first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password,created_at,updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
         [first_name,last_name,email,mobile_number,country,blood,gender,medical_issue,dob,password,Date.now(),Date.now()]);
         
         const token = generateUserToken(result.rows[0].id);

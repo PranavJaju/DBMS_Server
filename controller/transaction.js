@@ -9,6 +9,10 @@ const donateblood = async(req,res)=>{
         is_available = true;
         hospital = req.body.hospital;
         quantity = req.body.quantity;
+        weight = req.body.weight;
+        if(weight<=40){
+            return res.status(400).json({error:"You are under-weight"});
+        }
         const age =  donation_date.getFullYear() - dob.getFullYear();
         if(age<18){
             return res.status(400).json({error:"You need to be atleast 18+ to donate"});
@@ -42,3 +46,65 @@ const getactivedonations = async(req,res)=>{
         res.status(500).json({error:"Internal Server Error"});
     }
 }
+
+const show_transcation = async(req,res)=>{
+    try{
+        const id = req.user.id;
+        const response = await client.query("select * from transcation where donar_id = $1 or receiver_id = $1",[id]);
+        if(response.rows.length > 0){
+            return res.status(200).json({donation:response.rows});
+        }
+        else{
+            return res.status(400).json({error:"Your History is empty"});
+        }
+
+    }catch(err){
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+
+// create table receive(
+//     fk_user int,
+//     receive_date Date,
+//     hospital VARCHAR(1000),
+//     quantity NUMERIC(10, 2),
+//     CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES users(user_id) ON DELETE CASCADE
+// )
+const receive = async (req,res)=>{
+    try{
+       const id = req.user.id;
+       const blood = req.user.blood;
+       const text  = "select * from donation where blood = $1 and is_available = true limit 1"
+       const result = await client.query(text,[blood]);
+       if(result.rows.length<=0){
+        return res.status(400).json({error:"No active Donations"});
+       }
+       else{
+        const donar = result.rows[0];
+         
+            await client.query("update donation set is_available = $1 where id = $2",[false,donar.id]);
+            await client.query("insert into transaction(donar_id,receiver_id,blood,quantity,created_at) values ($1,$2,$3,$4,$5)",
+            [donar.fk_user,id,blood,1,Date.now()]);
+      
+       }
+    }
+    catch(e){
+          return res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+
+const getallblood = async(req,res)=>{
+    try{
+        const text = "select blood,sum(quantity) from donation group by blood";
+        const response = await client.query(text,[]);
+        return res.status(200).json({blood:response.rows});
+
+    }catch(e){
+        return res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+
+module.exports = {getallblood,getactivedonations,receive,show_transcation,donateblood};

@@ -1,10 +1,13 @@
 const {Client} = require('pg')
 const config = {
     host:process.env.HOST,
-    user: process.env.POSTGRES_USER,
-    port: process.env.POSTGRES_PORT,
-    password: process.env.POSTGRES_PASSWORD,
-    database: "bbm"
+    user:process.env.USER,
+    port: 5432,
+    password: process.env.PASSWORD,
+    database: "verceldb",
+    ssl:{
+        rejectUnauthorized: false,
+    }
 }
 
 const client = new Client(config);

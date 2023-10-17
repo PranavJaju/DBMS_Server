@@ -1,6 +1,5 @@
-use bbm;
 
-create table user(
+create table users(
     user_id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
     first_name VARCHAR(255) NOT NULL,
 	last_name VARCHAR(255) NOT NULL,
@@ -25,7 +24,7 @@ create table donation(
     quantity NUMERIC(10, 2),
     hospital VARCHAR(1000),
     is_available BOOLEAN,
-    CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
+    CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES users(user_id) ON DELETE CASCADE
 )
 
 create table receive(
@@ -33,18 +32,19 @@ create table receive(
     receive_date Date,
     hospital VARCHAR(1000),
     quantity NUMERIC(10, 2),
-    CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
+    CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES users(user_id) ON DELETE CASCADE
 )
 
 
 create table transaction(
     donar_id int,
     receiver_id int,
+    blood varchar(6),
     quantity NUMERIC(10, 2),
     created_at TIMESTAMP NOT NULL
-    CONSTRAINT donar_id FOREIGN KEY(donar_id) REFERENCES user(user_id) ON DELETE CASCADE,
+    CONSTRAINT donar_id FOREIGN KEY(donar_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT receiver_id  FOREIGN KEY(receiver_id ) REFERENCES user(user_id) ON DELETE CASCADE
-)
+);
 
 create table user_token(
     id INT GENERATED ALWAYS AS IDENTITY UNIQUE,
@@ -53,5 +53,5 @@ create table user_token(
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	fk_user INT,
-	CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES user(user_id) ON DELETE CASCADE
+	CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES users(user_id) ON DELETE CASCADE
 )
