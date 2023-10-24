@@ -76,7 +76,7 @@ const show_transcation = async(req,res)=>{
 // )
 const receive = async (req,res)=>{
     try{
-       const id = req.user.id;
+       const id = req.user.user_id;
        const blood = req.user.blood;
        const text  = "select * from donation where blood = $1 and is_available = true limit 1"
        const result = await client.query(text,[blood]);
@@ -86,7 +86,7 @@ const receive = async (req,res)=>{
        else{
         const donar = result.rows[0];
          
-            await client.query("update donation set is_available = $1 where id = $2",[false,donar.id]);
+            await client.query("update donation set is_available = $1 where id = $2",[false,donar.user_id]);
             await client.query("insert into transaction(donar_id,receiver_id,blood,quantity,created_at) values ($1,$2,$3,$4,$5)",
             [donar.fk_user,id,blood,1,Date.now()]);
       
