@@ -125,8 +125,8 @@ const show_donation = async(req,res)=>{
     try{
         const id = req.user.user_id;
         const blood = req.user.blood;
-        const text = "select * from donation where blood = $1 and is_available = true ";
-        const result = await client.query(text,[blood]);
+        const text = "select * from donation where blood = $1 and is_available = true and fk_user<>$2";
+        const result = await client.query(text,[blood,id]);
         if(result.rows.length<=0){
             return res.status(400).json({error:"No active Donations"});
            }
