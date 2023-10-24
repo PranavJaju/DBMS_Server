@@ -86,7 +86,7 @@ const getactivedonations = async(req,res)=>{
 const show_transcation = async(req,res)=>{
     try{
         const id = req.user.user_id;
-        const response = await client.query("select * from transcation where donar_id = $1 or receiver_id = $1",[id]);
+        const response = await client.query("select * from transaction where donar_id = $1 or receiver_id = $1",[id]);
         if(response.rows.length > 0){
             return res.status(200).json({donation:response.rows});
         }
@@ -121,25 +121,30 @@ const show_donation = async(req,res)=>{
         return res.status(500).json({error:"Internal Server Error"});
     }
 }
+
 const receive = async (req,res)=>{
     try{
+        //console.log(req.body);
+
        const id = req.user.user_id;
-       const d_id = req.user.d_id;
+       const d_id = req.body.d_id;
        const text  = "select * from donation where id = $1"
        const result = await client.query(text,[d_id]);
+
        if(result.rows.length<=0){
         return res.status(400).json({error:"No such Donations exist."});
        }
        else{
-        const donar = result.rows[0];
-         
-            await client.query("update donation set is_available = $1 where id = $2",[false,donar.id]);
+           // console.log("he")
+            const donar = result.rows[0];
+            console.log(donar);
+            await client.query("update donation set is_available = $1 where id = $2",[false,d_id]);
             await client.query("insert into transaction(donar_id,receiver_id,blood,quantity,created_at) values ($1,$2,$3,$4,$5)",
-            [donar.fk_user,id,blood,1,Date.now()]);
-      
+            [donar.fk_user,id,donar.blood,1, new Date()]);
        }
     }
     catch(e){
+            console.log("error ",e);
           return res.status(500).json({error:"Internal Server Error"});
     }
 }

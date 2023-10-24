@@ -26,7 +26,6 @@ exports.isAuthenticated = async (req, res, next) => {
       req.token = token;
       next();
     } catch (err) {
-      console.log("erer ",err);
       return res.status(401).json({ error: "Unauthorized user!" });
     }
   };
