@@ -52,7 +52,7 @@ const signin = async (req, res) => {
           const auth = await bcrypt.compare(req.body.password, data.rows[0].password);
 
           if (auth) {
-              const token = await generateUserToken(data.rows[0].id);
+              const token = await generateUserToken(data.rows[0].user_id);
               const user = { ...data.rows[0] };
               delete user.password;
 
