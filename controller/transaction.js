@@ -86,9 +86,23 @@ const getactivedonations = async(req,res)=>{
 const show_transcation = async(req,res)=>{
     try{
         const id = req.user.user_id;
-        const response = await client.query("select * from transcation where donar_id = $1 or receiver_id = $1",[id]);
+        const name = req.user.first_name;
+        let rname = ""
+        let dname = ""
+        const response = await client.query("select * from transaction where donar_id = $1 or receiver_id = $1",[id]);
+        
         if(response.rows.length > 0){
-            return res.status(200).json({donation:response.rows});
+            if(response.rows[0].Receiver_id===id){
+                rname = name;
+                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].Donar_id]);
+                dname = d.rows[0].first_name;
+            }
+            else{
+                dname = name;
+                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].Receiver_id]);
+                rname = d.rows[0].first_name;
+            }
+            return res.status(200).json({donation:response.rows,rname:rname,dname:dname});
         }
         else{
             return res.status(400).json({error:"Your History is empty"});
@@ -147,7 +161,7 @@ const receive = async (req,res)=>{
 
 const getallblood = async(req,res)=>{
     try{
-        const text = "select blood,sum(quantity) from donation group by blood";
+        const text = "select blood,sum(quantity) from donation where is_available = true group by blood ";
         const response = await client.query(text,[]);
         return res.status(200).json({blood:response.rows});
 
