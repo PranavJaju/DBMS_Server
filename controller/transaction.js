@@ -86,16 +86,19 @@ const getactivedonations = async(req,res)=>{
 const show_transcation = async(req,res)=>{
     try{
         const id = req.user.user_id;
+        let name=req.user.first_name;
+        let rname="";
+        let dname="";
         const response = await client.query("select * from transaction where donar_id = $1 or receiver_id = $1",[id]);
         if(response.rows.length > 0){
-            if(response.rows[0].Receiver_id===id){
+            if(response.rows[0].receiver_id===id){
                 rname = name;
-                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].Donar_id]);
+                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].donar_id]);
                 dname = d.rows[0].first_name;
             }
             else{
                 dname = name;
-                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].Receiver_id]);
+                const d = await client.query("select first_name from users where user_id = $1",[response.rows[0].receiver_id]);
                 rname = d.rows[0].first_name;
             }
             return res.status(200).json({donation:response.rows,rname:rname,dname:dname});
