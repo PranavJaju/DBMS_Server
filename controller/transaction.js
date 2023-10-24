@@ -1,3 +1,4 @@
+
 const client = require("../db/connect");
 
 const donateblood = async(req,res)=>{
@@ -35,7 +36,7 @@ const donateblood = async(req,res)=>{
 
 const getactivedonations = async(req,res)=>{
     try{
-        const id = req.user.id;
+        const id = req.user.user_id;
         const response = await client.query("select * from donation where fk_user = $1 and is_available = true",[id]);
         if(response.rows.length > 0){
             return res.status(200).json({donation:response.rows});
