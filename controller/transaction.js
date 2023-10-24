@@ -52,7 +52,7 @@ const getactivedonations = async(req,res)=>{
 
 const show_transcation = async(req,res)=>{
     try{
-        const id = req.user.id;
+        const id = req.user.user_id;
         const response = await client.query("select * from transcation where donar_id = $1 or receiver_id = $1",[id]);
         if(response.rows.length > 0){
             return res.status(200).json({donation:response.rows});
