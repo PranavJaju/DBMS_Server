@@ -12,21 +12,54 @@ const donateblood = async(req,res)=>{
         hospital = req.body.hospital;
         quantity = req.body.quantity;
         weight = req.body.weight;
-        if(weight<=40){
-            return res.status(400).json({error:"You are under-weight"});
-        }
-        const age =  donation_date.getFullYear() - dob.getFullYear();
-
-        if(age<18){
-            return res.status(400).json({error:"You need to be atleast 18+ to donate"});
+        let kans = await client.query("select * from donation where fk_user = $1 order by donation_date DESC limit 1",[id]);
+        if(kans.rows.length===0){
+            if(weight<=40){
+                return res.status(400).json({error:"You are under-weight"});
+            }
+            const age =  donation_date.getFullYear() - dob.getFullYear();
+    
+            if(age<18){
+                return res.status(400).json({error:"You need to be atleast 18+ to donate"});
+            }
+    
+            else{
+                const text = "insert into donation(fk_user,blood,donation_date,quantity,hospital,is_available) values ($1,$2,$3,$4,$5,$6)";
+                const param = [id,blood,donation_date,quantity,hospital,true];
+                await client.query(text,param);
+                res.status(201).json({msg:"Successfully Donated"});
+            }
+     
         }
         else{
-            const text = "insert into donation(fk_user,blood,donation_date,quantity,hospital,is_available) values ($1,$2,$3,$4,$5,$6)";
-            const param = [id,blood,donation_date,quantity,hospital,true];
-            await client.query(text,param);
-            res.status(201).json({msg:"Successfully Donated"});
-        }
+            const differenceInMilliseconds = donation_date - kans.rows[0].donation_date ;
+            const millisecondsInThreeMonths = 3 * 30 * 24 * 60 * 60 * 1000;
+            if (differenceInMilliseconds > millisecondsInThreeMonths) {
+                console.log('The difference is greater than 3 months.');
+                if(weight<=40){
+                    return res.status(400).json({error:"You are under-weight"});
+                }
+                const age =  donation_date.getFullYear() - dob.getFullYear();
+        
+                if(age<18){
+                    return res.status(400).json({error:"You need to be atleast 18+ to donate"});
+                }
+        
+                else{
+                    const text = "insert into donation(fk_user,blood,donation_date,quantity,hospital,is_available) values ($1,$2,$3,$4,$5,$6)";
+                    const param = [id,blood,donation_date,quantity,hospital,true];
+                    await client.query(text,param);
+                    res.status(201).json({msg:"Successfully Donated"});
+                }
+        
+              } else {
+                console.log('The difference is not greater than 3 months.');
+                return res.status(400).json({error:"Your previous donation has not been over 3 months"});
+              
+              }
 
+        }
+       
 
     }
     catch(err){
