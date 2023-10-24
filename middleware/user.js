@@ -9,11 +9,16 @@ exports.isAuthenticated = async (req, res, next) => {
       if (data.rowCount < 1) {
         return res.status(401).json({ error: "Unauthorized user!" });
       }
+
       const userId = data.rows[0].fk_user;
+      //console.log(userId);
       query =
-        "SELECT id, first_name, last_name, email, mobile_number, college, year, created_at, updated_at from users where id = $1";
+        "SELECT user_id, first_name, last_name, email, mobile_number,blood,dob, created_at, updated_at from users where user_id = $1";
       params = [userId];
+      //console.log(params);
       const result = await client.query(query, params);
+      
+
       if (result.rowCount < 1) {
         return res.status(401).json({ error: "Unauthorized user!" });
       }
@@ -21,6 +26,7 @@ exports.isAuthenticated = async (req, res, next) => {
       req.token = token;
       next();
     } catch (err) {
+      console.log("erer ",err);
       return res.status(401).json({ error: "Unauthorized user!" });
     }
   };

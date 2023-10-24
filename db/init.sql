@@ -17,7 +17,7 @@ create table users(
 )
 
 create table donation(
-    id int GENERATED ALWAYS AS IDENTITY UNIQUE
+    id int GENERATED ALWAYS AS IDENTITY UNIQUE,
     fk_user int,
     blood varchar(6),
     donation_date Date,

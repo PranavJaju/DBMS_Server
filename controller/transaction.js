@@ -2,7 +2,8 @@ const client = require("../db/connect");
 
 const donateblood = async(req,res)=>{
     try{
-        const id = req.user.id;
+        console.log(req.user);
+        const id = req.user.user_id;
         const blood = req.user.blood;
         const dob = req.user.dob;
         donation_date = new Date();
@@ -14,6 +15,7 @@ const donateblood = async(req,res)=>{
             return res.status(400).json({error:"You are under-weight"});
         }
         const age =  donation_date.getFullYear() - dob.getFullYear();
+
         if(age<18){
             return res.status(400).json({error:"You need to be atleast 18+ to donate"});
         }
