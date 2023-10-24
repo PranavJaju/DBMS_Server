@@ -74,14 +74,28 @@ const show_transcation = async(req,res)=>{
 //     quantity NUMERIC(10, 2),
 //     CONSTRAINT fk_user FOREIGN KEY(fk_user) REFERENCES users(user_id) ON DELETE CASCADE
 // )
+const show_donation = async(req,res)=>{
+    try{
+        const id = req.user.user_id;
+        const blood = req.user.blood;
+        const text = "select * from donation where blood = $1 and is_available = true ";
+        const result = await client.query(text,[blood]);
+        if(result.rows.length<=0){
+            return res.status(400).json({error:"No active Donations"});
+           }
+        return res.status(200).json({donation:result.rows})  
+    }catch(err){
+        return res.status(500).json({error:"Internal Server Error"});
+    }
+}
 const receive = async (req,res)=>{
     try{
        const id = req.user.user_id;
-       const blood = req.user.blood;
-       const text  = "select * from donation where blood = $1 and is_available = true limit 1"
-       const result = await client.query(text,[blood]);
+       const d_id = req.user.d_id;
+       const text  = "select * from donation where id = $1"
+       const result = await client.query(text,[d_id]);
        if(result.rows.length<=0){
-        return res.status(400).json({error:"No active Donations"});
+        return res.status(400).json({error:"No such Donations exist."});
        }
        else{
         const donar = result.rows[0];
@@ -110,4 +124,4 @@ const getallblood = async(req,res)=>{
 }
 
 
-module.exports = {getallblood,getactivedonations,receive,show_transcation,donateblood};
+module.exports = {getallblood,getactivedonations,receive,show_transcation,donateblood,show_donation};
