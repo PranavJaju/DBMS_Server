@@ -1,9 +1,10 @@
 const client = require("../db/connect");
 const {generateUserToken} = require("../middleware/user");
+const bcrypt = require("bcryptjs")
 const signup = async (req, res) => {
   try {
       const { first_name, last_name, email, mobile_number, country, blood, gender, medical_issue, dob, password } = req.body;
-
+      let enpassword  = await bcrypt.hash(password, 10);
       // Check for required fields
       if (!first_name || !email || !mobile_number || !gender || !dob || !password) {
           return res.status(400).json({ error: "Fill all the required fields" });
@@ -29,12 +30,11 @@ const signup = async (req, res) => {
       const created_at = new Date(); // Get the current date and time
       const updated_at = new Date(); // Get the current date and time
 
-      result = await client.query("INSERT INTO users (first_name, last_name, email, mobile_number, country, blood, gender, medical_issue, dob, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
-          [first_name, last_name, email, mobile_number, country, blood, gender, medical_issue, dob, password, created_at, updated_at]);
-
-      const token = generateUserToken(result.rows[0].id);
-
-      return res.status(201).json({ token: token, user: { ...result.rows[0] } });
+      const data = await client.query("INSERT INTO users (first_name, last_name, email, mobile_number, country, blood, gender, medical_issue, dob, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning user_id,first_name",
+          [first_name, last_name, email, mobile_number, country, blood, gender, medical_issue, dob, enpassword, created_at, updated_at]);
+      
+        const token = await generateUserToken(data.rows[0].user_id);
+      return res.status(201).json({ token: token,user:{...data.rows[0] }});
   } catch (e) {
       console.error(e); // Log the error for debugging
       res.status(500).json({ error: "Internal Server error" });

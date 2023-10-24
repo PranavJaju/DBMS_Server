@@ -1,4 +1,5 @@
 const client = require("../db/connect");
+const jwt = require("jsonwebtoken")
 exports.isAuthenticated = async (req, res, next) => {
     try {
       let query = "select * from user_token where token = $1";
